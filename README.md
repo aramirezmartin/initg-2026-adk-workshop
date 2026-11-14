@@ -39,14 +39,18 @@ python -m venv .venv
 pip install -e ".[dev]"
 ```
 
-### 2. Configure `.env`
+### 2. Get a `GOOGLE_API_KEY` & configure `.env`
 
-Copy `.env.example` to `.env` and set your `GOOGLE_API_KEY` (or another provider / `ADK_MODEL`).
-VirusTotal MCP (`vt_intel_agent`) **automatically registers** a free `VTAI_AGENT_TOKEN` into `~/.config/vt-mcp/token` on first startup if none is configured (or you can optionally set `VTAI_AGENT_TOKEN` / `VT_API_KEY` in `.env`):
-```bash
-cp .env.example .env             # macOS / Linux
-# copy .env.example .env         # Windows
-```
+1. Copy `.env.example` to `.env`:
+   ```bash
+   cp .env.example .env             # macOS / Linux
+   # copy .env.example .env         # Windows
+   ```
+2. **Get a free Gemini API key** in Google AI Studio:
+   - Open [Google AI Studio API Keys](https://aistudio.google.com/apikey) and sign in with your Google account.
+   - Click **Create API key**, select or create a Google Cloud project, and copy the generated key (`AIza...`).
+   - Paste it into `.env` as `GOOGLE_API_KEY=...` (keep `GOOGLE_GENAI_USE_VERTEXAI=FALSE` and `ADK_MODEL=gemini-2.5-flash` from `.env.example`, or pick another provider such as local Ollama, OpenAI, Anthropic, or Groq).
+3. **VirusTotal MCP (`vt_intel_agent`)** needs **no manual setup**: it automatically registers a free `VTAI_AGENT_TOKEN` into `~/.config/vt-mcp/token` on first startup if none is configured (or you can optionally set `VTAI_AGENT_TOKEN` / `VT_API_KEY` in `.env`).
 
 ## Running the Workshop
 

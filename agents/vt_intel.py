@@ -14,12 +14,17 @@ from typing import Any, Literal
 from dotenv import load_dotenv
 from google.adk.a2a.utils.agent_to_a2a import to_a2a
 from google.adk.agents import Agent
+from google.adk.skills import load_skills_from_dir
 from google.adk.tools import BaseTool, ToolContext
 from google.adk.tools.mcp_tool import McpToolset, StreamableHTTPConnectionParams
+from google.adk.tools.skill_toolset import SkillToolset
 from pydantic import BaseModel, ConfigDict
 import uvicorn
 
 load_dotenv()
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+SKILLS_DIR = BASE_DIR / "skills"
 
 DEFAULT_MODEL = os.getenv("ADK_MODEL", "gemini-4-hydrogen")
 A2A_HOST = "localhost"
@@ -99,6 +104,7 @@ def guard_vt_public_submissions(
 
 
 vt_mcp = _build_vt_mcp_toolset()
+skills = SkillToolset(skills=load_skills_from_dir(SKILLS_DIR / "vt_intel"))
 
 agent = Agent(
     name="vt_intel_agent",
@@ -108,7 +114,7 @@ agent = Agent(
         "Use passive VirusTotal MCP lookups (get_domain_report, get_ip_report, "
         "get_file_report, get_url_report) to assess indicators. Never submit files/URLs."
     ),
-    tools=[vt_mcp] if vt_mcp else [],
+    tools=[t for t in (vt_mcp, skills) if t is not None],
     before_tool_callback=guard_vt_public_submissions,
 )
 

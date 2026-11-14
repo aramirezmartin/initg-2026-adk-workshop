@@ -79,48 +79,48 @@ Open `http://localhost:8000` in your browser and select `soc_coordinator`.
 
 ## Example Prompts (for `adk web`)
 
-All prompts below work out-of-the-box against the synthetic artifacts in `samples/`:
+Goal-oriented prompts against `samples/` (the coordinator and specialists decide autonomously which tools, skills, and guardrails to use):
 
-### Deobfuscate a sample (`deobfuscator_agent`)
+### Suspicious script triage
 
 ```text
-Deobfuscate samples/obfuscated_beacon.py.b64 using Python and extract all IOCs.
+Analyze samples/obfuscated_beacon.py.b64 and tell me what it does.
 ```
 
 ```text
-Decode the XOR + Base64 payload in samples/obfuscated_dropper.js and list the extracted C2 indicators.
+Inspect samples/obfuscated_dropper.js and extract any relevant indicators.
 ```
 
-### Audit a poisoned skill & WAF log (`secops_auditor`)
+### Skill & log security review
 
 ```text
-Audit samples/poisoned_skill_package/SKILL.md for supply-chain risks.
-```
-
-```text
-Inspect samples/waf_incident.log for suspicious activity and check the advisory at https://security.internal.corp/advisories/GHSA-glassworm-trojan-skills.
-```
-
-### Passive VirusTotal enrichment (`vt_intel_agent`, requires `VTAI_AGENT_TOKEN` or `VT_API_KEY`)
-
-```text
-Check the VirusTotal reputation for IP 185.220.101.42 and hash 870562d65b359ee5343c7f4a2b63cb9c0824e3ccae60101f223fd3dbc9fbc22b (passive lookup only).
-```
-
-### Test the guardrails (SSRF & public VT submission block)
-
-```text
-Fetch the security advisory at http://evil-collector.attacker.io/leak.
+Is samples/poisoned_skill_package/SKILL.md safe to install?
 ```
 
 ```text
-Submit samples/obfuscated_dropper.js to VirusTotal for public scanning.
+Review samples/waf_incident.log and summarize any security findings.
 ```
 
-### Full end-to-end multi-agent investigation (`soc_coordinator` -> all 3 specialists)
+### Threat intelligence lookup (requires `VTAI_AGENT_TOKEN` or `VT_API_KEY`)
 
 ```text
-Run a full SOC investigation: audit samples/poisoned_skill_package/SKILL.md and samples/waf_incident.log, deobfuscate samples/obfuscated_beacon.py.b64 and samples/obfuscated_dropper.js, and enrich the extracted IOCs in VirusTotal without submitting any files.
+What is the threat reputation of 185.220.101.42 and 870562d65b359ee5343c7f4a2b63cb9c0824e3ccae60101f223fd3dbc9fbc22b?
+```
+
+### Guardrail checks
+
+```text
+Check the security advisory at http://evil-collector.attacker.io/leak.
+```
+
+```text
+Submit samples/obfuscated_dropper.js to VirusTotal for scanning.
+```
+
+### Full autonomous SOC investigation
+
+```text
+Investigate everything in samples/ and give me an executive incident report with your findings and recommended actions.
 ```
 
 ## Testing

@@ -14,13 +14,17 @@ from dotenv import load_dotenv
 from google.adk.a2a.utils.agent_to_a2a import to_a2a
 from google.adk.agents import Agent
 from google.adk.agents.context import Context
+from google.adk.skills import load_skills_from_dir
 from google.adk.tools.base_tool import BaseTool
+from google.adk.tools.skill_toolset import SkillToolset
 from pydantic import BaseModel, ConfigDict
 import uvicorn
 
 load_dotenv()
 
-SAMPLES_DIR = Path(__file__).resolve().parent.parent / "samples"
+BASE_DIR = Path(__file__).resolve().parent.parent
+SAMPLES_DIR = BASE_DIR / "samples"
+SKILLS_DIR = BASE_DIR / "skills"
 DEFAULT_MODEL = os.getenv("ADK_MODEL", "gemini-4-hydrogen")
 A2A_HOST = "localhost"
 A2A_PORT = 8003
@@ -178,12 +182,14 @@ def ssrf_guardrail(
     return None
 
 
+skills = SkillToolset(skills=load_skills_from_dir(SKILLS_DIR / "secops_auditor"))
+
 agent = Agent(
     name="secops_auditor",
     model=DEFAULT_MODEL,
     description="SecOps auditor for skill packages, WAF logs, and internal advisories.",
     instruction="Audit skill packages, inspect WAF logs, and fetch internal security advisories.",
-    tools=[audit_skill_package, read_waf_log, fetch_security_advisory],
+    tools=[audit_skill_package, read_waf_log, fetch_security_advisory, skills],
     before_tool_callback=ssrf_guardrail,
 )
 

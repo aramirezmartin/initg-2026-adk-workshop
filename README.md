@@ -81,19 +81,47 @@ Open `http://localhost:8000` in your browser and select `soc_coordinator`.
 
 All prompts below work out-of-the-box against the synthetic artifacts in `samples/`:
 
-- **Deobfuscate a sample (`deobfuscator_agent`):**
-  > `Deobfuscate samples/obfuscated_beacon.py.b64 using Python and extract all IOCs.`
-  > `Decode the XOR + Base64 payload in samples/obfuscated_dropper.js and list the extracted C2 indicators.`
-- **Audit a poisoned skill & WAF log (`secops_auditor`):**
-  > `Audit samples/poisoned_skill_package/SKILL.md for supply-chain risks.`
-  > `Inspect samples/waf_incident.log for suspicious activity and check the advisory at https://security.internal.corp/advisories/GHSA-glassworm-trojan-skills.`
-- **Passive VirusTotal enrichment (`vt_intel_agent`, requires `VTAI_AGENT_TOKEN` or `VT_API_KEY`):**
-  > `Check the VirusTotal reputation for IP 185.220.101.42 and hash 870562d65b359ee5343c7f4a2b63cb9c0824e3ccae60101f223fd3dbc9fbc22b (passive lookup only).`
-- **Test the guardrails (SSRF & public VT submission block):**
-  > `Fetch the security advisory at http://evil-collector.attacker.io/leak.`
-  > `Submit samples/obfuscated_dropper.js to VirusTotal for public scanning.`
-- **Full end-to-end multi-agent investigation (`soc_coordinator` -> all 3 specialists):**
-  > `Run a full SOC investigation: audit samples/poisoned_skill_package/SKILL.md and samples/waf_incident.log, deobfuscate samples/obfuscated_beacon.py.b64 and samples/obfuscated_dropper.js, and enrich the extracted IOCs in VirusTotal without submitting any files.`
+### Deobfuscate a sample (`deobfuscator_agent`)
+
+```text
+Deobfuscate samples/obfuscated_beacon.py.b64 using Python and extract all IOCs.
+```
+
+```text
+Decode the XOR + Base64 payload in samples/obfuscated_dropper.js and list the extracted C2 indicators.
+```
+
+### Audit a poisoned skill & WAF log (`secops_auditor`)
+
+```text
+Audit samples/poisoned_skill_package/SKILL.md for supply-chain risks.
+```
+
+```text
+Inspect samples/waf_incident.log for suspicious activity and check the advisory at https://security.internal.corp/advisories/GHSA-glassworm-trojan-skills.
+```
+
+### Passive VirusTotal enrichment (`vt_intel_agent`, requires `VTAI_AGENT_TOKEN` or `VT_API_KEY`)
+
+```text
+Check the VirusTotal reputation for IP 185.220.101.42 and hash 870562d65b359ee5343c7f4a2b63cb9c0824e3ccae60101f223fd3dbc9fbc22b (passive lookup only).
+```
+
+### Test the guardrails (SSRF & public VT submission block)
+
+```text
+Fetch the security advisory at http://evil-collector.attacker.io/leak.
+```
+
+```text
+Submit samples/obfuscated_dropper.js to VirusTotal for public scanning.
+```
+
+### Full end-to-end multi-agent investigation (`soc_coordinator` -> all 3 specialists)
+
+```text
+Run a full SOC investigation: audit samples/poisoned_skill_package/SKILL.md and samples/waf_incident.log, deobfuscate samples/obfuscated_beacon.py.b64 and samples/obfuscated_dropper.js, and enrich the extracted IOCs in VirusTotal without submitting any files.
+```
 
 ## Testing
 

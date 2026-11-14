@@ -1,0 +1,48 @@
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "initg-2026-adk-workshop"
+version = "1.0.0"
+description = "From Zero to Cyber Agent Orchestra: Building & Hardening Multi-Agent Threat Intelligence Systems with Google ADK, MCP & A2A"
+readme = "README.md"
+requires-python = ">=3.11"
+license = {text = "Apache-2.0"}
+authors = [
+    {name = "Andres Ramirez", email = "anramar@google.com"},
+]
+dependencies = [
+    "a2a-sdk>=1.3.0",
+    "google-adk>=2.13.0",
+    "httpx>=0.27.0",
+    "litellm>=1.65.0",
+    "mcp>=2.3.0",
+    "python-dotenv>=1.2.4",
+    "requests>=2.32.0",
+    "starlette>=0.40.0",
+    "uvicorn>=0.30.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.24.0",
+]
+
+[tool.setuptools.packages.find]
+include = [
+    "a2a_servers*",
+    "coordinator*",
+    "labs*",
+    "mcp_servers*",
+    "scripts*",
+    "vt_mcp_agent*",
+    "workshop_common*",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"

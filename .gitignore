@@ -1,0 +1,27 @@
+# Secrets & Environment (NEVER COMMIT)
+.env
+.env.*
+!.env.example
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+
+# ADK & Runtime artifacts
+.adk/
+.pids/
+*.log
+!samples/*.log
+*.pid
+
+# Python bytecode & caches
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+dist/
+build/
+*.egg-info/

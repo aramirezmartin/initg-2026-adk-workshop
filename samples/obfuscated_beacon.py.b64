@@ -1,0 +1,4 @@
+# CAPTURED LOADER ENVELOPE: base64 -> single-byte XOR (0x37) -> zlib raw stream
+# BENIGN SYNTHETIC WORKSHOP ARTIFACT — init.g(malaga) 2026
+# Decode deterministically in sandbox: base64.b64decode -> bytes(b ^ 0x37) -> zlib.decompress
+PAYLOAD_B64 = "T+1i+XZctAcv8caMqHXv9tqXE16DRod0XYTh4nFmlsMjaaTvPmJ83MHOkMOD1DyIwNbI1Vmze0BlYlBu2HKqEd2joLBdqCBdFE+lfMCCLI0ej48Ka9Y1GXYTTUQlSRvPxWDEqszWTc766Vbd8fboatbGD7rA6ejtScOrlXu4iwucsxt5pJew9kMqO6TIRAQH7vfvaPjO026B1v52Po4axWPhvPEbOz92NnEPl9OqZo3Fq1ChzX3cbaOdJcSGmlF6dJCtXDNm4hb6BRLOZhsUNDuUSASayFqYRJLAaGJMefVfRj9mei65bOUHv4aWDYVcV3qbpvahgxyXep8UhIGbujYCbySEhYM6Fl3hrS74zjTNg2nI"

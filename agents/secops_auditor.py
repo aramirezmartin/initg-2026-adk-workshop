@@ -17,6 +17,7 @@ from google.adk.agents.context import Context
 from google.adk.skills import load_skills_from_dir
 from google.adk.tools.base_tool import BaseTool
 from google.adk.tools.skill_toolset import SkillToolset
+from google.genai import types
 from pydantic import BaseModel, ConfigDict
 import uvicorn
 
@@ -184,11 +185,25 @@ def ssrf_guardrail(
 
 skills = SkillToolset(skills=load_skills_from_dir(SKILLS_DIR / "secops_auditor"))
 
+_SAFETY_CONFIG = types.GenerateContentConfig(
+    safety_settings=[
+        types.SafetySetting(category=category, threshold=types.HarmBlockThreshold.OFF)
+        for category in (
+            types.HarmCategory.HARM_CATEGORY_HARASSMENT,
+            types.HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+            types.HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
+            types.HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+            types.HarmCategory.HARM_CATEGORY_CIVIC_INTEGRITY,
+        )
+    ]
+)
+
 agent = Agent(
     name="secops_auditor",
     model=DEFAULT_MODEL,
     description="SecOps auditor for skill packages, WAF logs, and internal advisories.",
     instruction="Audit skill packages, inspect WAF logs, and fetch internal security advisories.",
+    generate_content_config=_SAFETY_CONFIG,
     tools=[audit_skill_package, read_waf_log, fetch_security_advisory, skills],
     before_tool_callback=ssrf_guardrail,
 )

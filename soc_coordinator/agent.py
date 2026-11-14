@@ -133,6 +133,19 @@ def _build_coordinator_instruction(subagents: list[Any]) -> str:
     )
 
 
+_SAFETY_CONFIG = types.GenerateContentConfig(
+    safety_settings=[
+        types.SafetySetting(category=category, threshold=types.HarmBlockThreshold.OFF)
+        for category in (
+            types.HarmCategory.HARM_CATEGORY_HARASSMENT,
+            types.HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+            types.HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
+            types.HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+            types.HarmCategory.HARM_CATEGORY_CIVIC_INTEGRITY,
+        )
+    ]
+)
+
 _subagents: list[Any] = discover_a2a_subagents()
 
 root_agent = LlmAgent(
@@ -140,6 +153,7 @@ root_agent = LlmAgent(
     model=DEFAULT_MODEL,
     description="Root SOC coordinator delegating tasks to A2A specialist agents.",
     instruction=_build_coordinator_instruction(_subagents),
+    generate_content_config=_SAFETY_CONFIG,
     before_model_callback=decode_inline_attachments,
     sub_agents=_subagents,
 )

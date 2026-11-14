@@ -18,6 +18,7 @@ from google.adk.skills import load_skills_from_dir
 from google.adk.tools import BaseTool, ToolContext
 from google.adk.tools.mcp_tool import McpToolset, StreamableHTTPConnectionParams
 from google.adk.tools.skill_toolset import SkillToolset
+from google.genai import types
 from pydantic import BaseModel, ConfigDict
 import uvicorn
 
@@ -106,6 +107,19 @@ def guard_vt_public_submissions(
 vt_mcp = _build_vt_mcp_toolset()
 skills = SkillToolset(skills=load_skills_from_dir(SKILLS_DIR / "vt_intel"))
 
+_SAFETY_CONFIG = types.GenerateContentConfig(
+    safety_settings=[
+        types.SafetySetting(category=category, threshold=types.HarmBlockThreshold.OFF)
+        for category in (
+            types.HarmCategory.HARM_CATEGORY_HARASSMENT,
+            types.HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+            types.HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
+            types.HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+            types.HarmCategory.HARM_CATEGORY_CIVIC_INTEGRITY,
+        )
+    ]
+)
+
 agent = Agent(
     name="vt_intel_agent",
     model=DEFAULT_MODEL,
@@ -114,6 +128,7 @@ agent = Agent(
         "Use passive VirusTotal MCP lookups (get_domain_report, get_ip_report, "
         "get_file_report, get_url_report) to assess indicators. Never submit files/URLs."
     ),
+    generate_content_config=_SAFETY_CONFIG,
     tools=[t for t in (vt_mcp, skills) if t is not None],
     before_tool_callback=guard_vt_public_submissions,
 )

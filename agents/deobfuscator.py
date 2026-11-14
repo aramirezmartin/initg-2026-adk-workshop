@@ -19,6 +19,7 @@ from google.adk.a2a.utils.agent_to_a2a import to_a2a
 from google.adk.agents import Agent
 from google.adk.skills import load_skills_from_dir
 from google.adk.tools.skill_toolset import SkillToolset
+from google.genai import types
 from pydantic import BaseModel, ConfigDict
 import uvicorn
 
@@ -160,6 +161,19 @@ def execute_python_sandbox(
 
 skills = SkillToolset(skills=load_skills_from_dir(SKILLS_DIR / "deobfuscator"))
 
+_SAFETY_CONFIG = types.GenerateContentConfig(
+    safety_settings=[
+        types.SafetySetting(category=category, threshold=types.HarmBlockThreshold.OFF)
+        for category in (
+            types.HarmCategory.HARM_CATEGORY_HARASSMENT,
+            types.HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+            types.HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
+            types.HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+            types.HarmCategory.HARM_CATEGORY_CIVIC_INTEGRITY,
+        )
+    ]
+)
+
 agent = Agent(
     name="deobfuscator_agent",
     model=DEFAULT_MODEL,
@@ -174,6 +188,7 @@ agent = Agent(
         "3. Never guess XOR, Base64, or zlib outputs; decode deterministically using execute_python_sandbox.\n"
         "4. Return a structured IOC table (C2 domains, IPs, ports, URLs, campaign tags, SHA-256)."
     ),
+    generate_content_config=_SAFETY_CONFIG,
     tools=[read_sample_artifact, execute_python_sandbox, skills],
 )
 

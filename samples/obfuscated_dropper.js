@@ -1,7 +1,6 @@
 /**
  * BENIGN SYNTHETIC WORKSHOP ARTIFACT — init.g(malaga) 2026
  * Educational malware dropper simulation for AI Agent deobfuscation.
- * Multi-layer encoding: Hex Array -> XOR("GSEC26") -> Base64 -> JSON Payload.
  * Inert sample: payload execution is commented out.
  */
 const _0xkey = "GSEC26";

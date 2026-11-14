@@ -10,6 +10,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 import hashlib
 import os
+from pathlib import Path
 from typing import Any
 
 from dotenv import load_dotenv
@@ -17,11 +18,15 @@ from google.adk.agents import LlmAgent
 from google.adk.agents.callback_context import CallbackContext
 from google.adk.agents.remote_a2a_agent import RemoteA2aAgent
 from google.adk.models import LlmRequest
+from google.adk.planners import BuiltInPlanner
+from google.adk.tools.agent_tool import AgentTool
 from google.genai import types
 import httpx
 
 load_dotenv()
 
+BASE_DIR = Path(__file__).resolve().parent.parent
+SAMPLES_DIR = BASE_DIR / "samples"
 DEFAULT_MODEL = os.getenv("ADK_MODEL", "gemini-4-hydrogen")
 _MEDIA_PREFIXES: tuple[str, ...] = ("image/", "audio/", "video/")
 
@@ -117,6 +122,21 @@ def discover_a2a_subagents(timeout: float = 1.0) -> list[RemoteA2aAgent]:
     return discovered
 
 
+def list_samples() -> list[str]:
+    """List all artifact file paths available under `samples/`.
+
+    Returns:
+        Sorted list of relative file paths inside `samples/`.
+    """
+    if not SAMPLES_DIR.is_dir():
+        return []
+    return sorted(
+        str(path.relative_to(SAMPLES_DIR))
+        for path in SAMPLES_DIR.rglob("*")
+        if path.is_file()
+    )
+
+
 def _build_coordinator_instruction(subagents: list[Any]) -> str:
     """Build the coordinator system instruction based on discovered specialists."""
     header = "You are soc_coordinator, leading an A2A security investigation team.\n"
@@ -126,10 +146,12 @@ def _build_coordinator_instruction(subagents: list[Any]) -> str:
             "Tell the user to run `soc-start` first."
         )
     return (
-        f"{header}Delegate Python deobfuscation to deobfuscator_agent, threat lookups to "
-        "vt_intel_agent, and skill/WAF audits to secops_auditor_agent. "
-        "When the user attaches a file, pass its full content or extracted indicators "
-        "to the appropriate specialist."
+        f"{header}"
+        "Use `list_samples` to discover files in `samples/` when investigating the workspace. "
+        "Orchestrate your A2A specialist tools (`deobfuscator_agent` for script deobfuscation, "
+        "`secops_auditor_agent` for SKILL.md/WAF/advisory audits, and `vt_intel_agent` for "
+        "VirusTotal enrichment of all extracted IPs, domains, and hashes), then synthesize a "
+        "single executive incident report."
     )
 
 
@@ -151,9 +173,15 @@ _subagents: list[Any] = discover_a2a_subagents()
 root_agent = LlmAgent(
     name="soc_coordinator",
     model=DEFAULT_MODEL,
-    description="Root SOC coordinator delegating tasks to A2A specialist agents.",
+    description="Root SOC coordinator orchestrating A2A specialist agents.",
     instruction=_build_coordinator_instruction(_subagents),
     generate_content_config=_SAFETY_CONFIG,
+    planner=BuiltInPlanner(
+        thinking_config=types.ThinkingConfig(
+            include_thoughts=True,
+            thinking_level=types.ThinkingLevel.MEDIUM,
+        )
+    ),
     before_model_callback=decode_inline_attachments,
-    sub_agents=_subagents,
+    tools=[list_samples, *(AgentTool(agent=sa) for sa in _subagents)],
 )

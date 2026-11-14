@@ -30,6 +30,14 @@ dev = [
     "pytest-asyncio>=0.24.0",
 ]
 
+[project.scripts]
+soc-start = "soc_coordinator.cli:start"
+soc-stop = "soc_coordinator.cli:stop"
+soc-web = "soc_coordinator.cli:web"
+soc-deobfuscator = "agents.deobfuscator:main"
+soc-vt-intel = "agents.vt_intel:main"
+soc-secops-auditor = "agents.secops_auditor:main"
+
 [tool.setuptools.packages.find]
 include = [
     "agents*",

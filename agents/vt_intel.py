@@ -70,5 +70,10 @@ agent = Agent(
 )
 app = to_a2a(agent, host="localhost", port=8002)
 
-if __name__ == "__main__":
+def main() -> None:
+    """Run the VirusTotal Intel A2A server."""
     uvicorn.run(app, host="localhost", port=8002)
+
+
+if __name__ == "__main__":
+    main()

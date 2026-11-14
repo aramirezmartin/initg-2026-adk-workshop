@@ -49,41 +49,33 @@ cp .env.example .env             # macOS / Linux
 
 ## Running the Workshop
 
-### Option A — With `make` (macOS / Linux / WSL)
+Installing the package registers cross-platform CLI commands in `[project.scripts]` inside `pyproject.toml` (works on macOS, Linux, and Windows without `make`).
+
+### Option A — Background specialists + ADK Web (with `.venv` activated)
 
 1. **Start the 3 A2A specialist servers** in the background:
    ```bash
-   make start
+   soc-start
    ```
 2. **Launch ADK Web UI** on `http://localhost:8000` and select `soc_coordinator`:
    ```bash
-   make web
+   soc-web
    ```
 3. **Stop the background specialists** when done:
    ```bash
-   make stop
+   soc-stop
    ```
 
-### Option B — Without `make` (any OS, 4 terminals with `.venv` activated)
+*(You can also run `make start`, `make web`, `make stop` if you have `make` installed.)*
 
-If you do not have `make` installed (for example on Windows), run each specialist and `adk web` in its own terminal:
+### Option B — Run each specialist in its own terminal
 
-- **Terminal 1 (Deobfuscator `:8001`):**
-  ```bash
-  uvicorn agents.deobfuscator:app --host localhost --port 8001
-  ```
-- **Terminal 2 (VirusTotal Intel `:8002`):**
-  ```bash
-  uvicorn agents.vt_intel:app --host localhost --port 8002
-  ```
-- **Terminal 3 (SecOps Auditor `:8003`):**
-  ```bash
-  uvicorn agents.secops_auditor:app --host localhost --port 8003
-  ```
-- **Terminal 4 (ADK Web UI `:8000`):**
-  ```bash
-  adk web --port 8000 --reload_agents .
-  ```
+```bash
+soc-deobfuscator     # Terminal 1 (:8001)
+soc-vt-intel         # Terminal 2 (:8002)
+soc-secops-auditor   # Terminal 3 (:8003)
+soc-web              # Terminal 4 (:8000)
+```
 
 Open `http://localhost:8000` in your browser and select `soc_coordinator`.
 
@@ -92,7 +84,5 @@ Open `http://localhost:8000` in your browser and select `soc_coordinator`.
 Run the self-contained verification suite (imports, A2A cards, `discover_a2a_subagents`, live `:8001–:8003` + `adk web` `/list-apps` check):
 
 ```bash
-make test
-# Or without make (with .venv activated):
 pytest -v
 ```

@@ -69,5 +69,10 @@ agent = Agent(
 )
 app = to_a2a(agent, host="localhost", port=8003)
 
-if __name__ == "__main__":
+def main() -> None:
+    """Run the SecOps Auditor A2A server."""
     uvicorn.run(app, host="localhost", port=8003)
+
+
+if __name__ == "__main__":
+    main()

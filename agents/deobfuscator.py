@@ -99,5 +99,10 @@ agent = Agent(
 
 app = to_a2a(agent, host="localhost", port=8001)
 
-if __name__ == "__main__":
+def main() -> None:
+    """Run the Deobfuscator A2A server."""
     uvicorn.run(app, host="localhost", port=8001)
+
+
+if __name__ == "__main__":
+    main()

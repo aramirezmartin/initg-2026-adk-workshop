@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
+import re
 from typing import Any, Literal
 
 from dotenv import load_dotenv
@@ -19,6 +20,7 @@ from google.adk.tools import BaseTool, ToolContext
 from google.adk.tools.mcp_tool import McpToolset, StreamableHTTPConnectionParams
 from google.adk.tools.skill_toolset import SkillToolset
 from google.genai import types
+import httpx
 from pydantic import BaseModel, ConfigDict
 import uvicorn
 
@@ -31,8 +33,10 @@ DEFAULT_MODEL = os.getenv("ADK_MODEL", "gemini-4-hydrogen")
 A2A_HOST = "localhost"
 A2A_PORT = 8002
 VT_MCP_URL = "https://ai.virustotal.com/mcp"
+VT_REGISTER_URL = "https://ai.virustotal.com/api/v3/agents/register"
 VT_MCP_TIMEOUT_S = 20.0
 VT_TOKEN_FILE = Path.home() / ".config" / "vt-mcp" / "token"
+_VT_TOKEN_RE = re.compile(r"vtai_[A-Za-z0-9_-]{1,507}")
 
 _BLOCKED_SUBMISSION_TOOLS = frozenset({
     "submit_file",
@@ -53,8 +57,33 @@ class VtGuardrailBlock(BaseModel):
     reason: str
 
 
+def _register_vtai_token(token_path: Path = VT_TOKEN_FILE) -> str | None:
+    """Register a free VTAI Agent Token once and persist it with 0600 permissions."""
+    if token_path.exists() or token_path.is_symlink():
+        return None
+    try:
+        resp = httpx.post(
+            VT_REGISTER_URL,
+            json={"agent_family": "vt-mcp-other", "agent_version": "0.9.9"},
+            timeout=VT_MCP_TIMEOUT_S,
+            follow_redirects=False,
+        )
+        resp.raise_for_status()
+        token = resp.json().get("agent_token", "")
+        if not isinstance(token, str) or not _VT_TOKEN_RE.fullmatch(token):
+            return None
+        token_path.parent.mkdir(parents=True, exist_ok=True)
+        token_path.parent.chmod(0o700)
+        fd = os.open(token_path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+        with os.fdopen(fd, "w", encoding="utf-8") as handle:
+            handle.write(token + "\n")
+        return token
+    except (httpx.HTTPError, ValueError, OSError):
+        return None
+
+
 def _resolve_vt_headers() -> dict[str, str]:
-    """Resolve VirusTotal MCP auth headers from env vars or local token file."""
+    """Resolve VirusTotal MCP auth headers, auto-registering a free token if missing."""
     if os.getenv("VT_MCP_OFFLINE", "").lower() == "true":
         return {}
     if token := os.getenv("VTAI_AGENT_TOKEN", "").strip():
@@ -63,6 +92,8 @@ def _resolve_vt_headers() -> dict[str, str]:
         return {"Authorization": f"Bearer {token}"}
     if api_key := os.getenv("VT_API_KEY", "").strip():
         return {"x-apikey": api_key}
+    if token := _register_vtai_token():
+        return {"Authorization": f"Bearer {token}"}
     return {}
 
 

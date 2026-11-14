@@ -41,7 +41,8 @@ pip install -e ".[dev]"
 
 ### 2. Configure `.env`
 
-Copy `.env.example` to `.env` and set your `GOOGLE_API_KEY` (or another provider / `ADK_MODEL`), plus `VTAI_AGENT_TOKEN` or `VT_API_KEY`:
+Copy `.env.example` to `.env` and set your `GOOGLE_API_KEY` (or another provider / `ADK_MODEL`).
+VirusTotal MCP (`vt_intel_agent`) **automatically registers** a free `VTAI_AGENT_TOKEN` into `~/.config/vt-mcp/token` on first startup if none is configured (or you can optionally set `VTAI_AGENT_TOKEN` / `VT_API_KEY` in `.env`):
 ```bash
 cp .env.example .env             # macOS / Linux
 # copy .env.example .env         # Windows

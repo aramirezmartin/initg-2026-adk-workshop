@@ -181,3 +181,27 @@ def test_python_decoder_and_inline_attachment_decoding() -> None:
     decoded_text = req.contents[0].parts[0].text or ""
     assert "console.log('test');" in decoded_text
     assert "sha256=" in decoded_text
+
+
+def test_vt_auto_registration_writes_token_file(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """_register_vtai_token stores a validated vtai_ token with 0600 permissions."""
+    from agents import vt_intel
+
+    token_path = tmp_path / ".config" / "vt-mcp" / "token"
+
+    def fake_post(url: str, **kwargs: Any) -> httpx.Response:
+        assert url == vt_intel.VT_REGISTER_URL
+        return httpx.Response(
+            200,
+            json={"agent_token": "vtai_test_token_12345"},
+            request=httpx.Request("POST", url),
+        )
+
+    monkeypatch.setattr(vt_intel.httpx, "post", fake_post)
+    token = vt_intel._register_vtai_token(token_path=token_path)
+    assert token == "vtai_test_token_12345"
+    assert token_path.read_text(encoding="utf-8").strip() == "vtai_test_token_12345"
+    assert (token_path.stat().st_mode & 0o777) == 0o600
+    assert vt_intel._register_vtai_token(token_path=token_path) is None

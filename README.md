@@ -11,21 +11,81 @@ A minimal, self-contained multi-agent SOC investigation orchestra built with **G
 | `agents/secops_auditor.py` | `:8003` | A2A specialist auditing `samples/` skill packages & WAF logs with an SSRF `before_tool_callback` on `fetch_security_advisory`. |
 | `soc_coordinator/agent.py` | `:8000` | ADK `root_agent` (`soc_coordinator`) that probes `:8001–:8003` via `discover_a2a_subagents()` and delegates over `RemoteA2aAgent`. |
 
-## Quick Start
+## Setup (Python 3.11+)
 
-1. **Configure `.env`** (copy `.env.example` to `.env` and set your API key / `ADK_MODEL`, plus `VTAI_AGENT_TOKEN` or `VT_API_KEY`).
-2. **Start the 3 A2A specialist servers** in the background:
+### 1. Create the virtual environment & install dependencies
+
+**Option A — `uv` (recommended, uses `uv.lock`):**
+```bash
+uv sync --extra dev
+```
+Activate it (or prefix commands with `uv run`):
+```bash
+source .venv/bin/activate        # macOS / Linux
+# .\.venv\Scripts\Activate.ps1   # Windows PowerShell
+```
+
+**Option B — standard `python -m venv` + `pip`:**
+```bash
+# macOS / Linux
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -e ".[dev]"
+```
+```powershell
+# Windows PowerShell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install -e ".[dev]"
+```
+
+### 2. Configure `.env`
+
+Copy `.env.example` to `.env` and set your `GOOGLE_API_KEY` (or another provider / `ADK_MODEL`), plus `VTAI_AGENT_TOKEN` or `VT_API_KEY`:
+```bash
+cp .env.example .env             # macOS / Linux
+# copy .env.example .env         # Windows
+```
+
+## Running the Workshop
+
+### Option A — With `make` (macOS / Linux / WSL)
+
+1. **Start the 3 A2A specialist servers** in the background:
    ```bash
    make start
    ```
-3. **Launch ADK Web UI** on `http://localhost:8000` and select `soc_coordinator`:
+2. **Launch ADK Web UI** on `http://localhost:8000` and select `soc_coordinator`:
    ```bash
    make web
    ```
-4. **Stop the background specialists** when done:
+3. **Stop the background specialists** when done:
    ```bash
    make stop
    ```
+
+### Option B — Without `make` (any OS, 4 terminals with `.venv` activated)
+
+If you do not have `make` installed (for example on Windows), run each specialist and `adk web` in its own terminal:
+
+- **Terminal 1 (Deobfuscator `:8001`):**
+  ```bash
+  uvicorn agents.deobfuscator:app --host localhost --port 8001
+  ```
+- **Terminal 2 (VirusTotal Intel `:8002`):**
+  ```bash
+  uvicorn agents.vt_intel:app --host localhost --port 8002
+  ```
+- **Terminal 3 (SecOps Auditor `:8003`):**
+  ```bash
+  uvicorn agents.secops_auditor:app --host localhost --port 8003
+  ```
+- **Terminal 4 (ADK Web UI `:8000`):**
+  ```bash
+  adk web --port 8000 --reload_agents .
+  ```
+
+Open `http://localhost:8000` in your browser and select `soc_coordinator`.
 
 ## Testing
 
@@ -33,4 +93,6 @@ Run the self-contained verification suite (imports, A2A cards, `discover_a2a_sub
 
 ```bash
 make test
+# Or without make (with .venv activated):
+pytest -v
 ```

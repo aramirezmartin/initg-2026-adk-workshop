@@ -32,13 +32,8 @@ dev = [
 
 [tool.setuptools.packages.find]
 include = [
-    "a2a_servers*",
-    "coordinator*",
-    "labs*",
-    "mcp_servers*",
-    "scripts*",
-    "vt_mcp_agent*",
-    "workshop_common*",
+    "agents*",
+    "soc_coordinator*",
 ]
 
 [tool.pytest.ini_options]

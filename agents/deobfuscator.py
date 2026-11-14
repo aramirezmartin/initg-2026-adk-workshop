@@ -178,8 +178,8 @@ agent = Agent(
     name="deobfuscator_agent",
     model=DEFAULT_MODEL,
     description=(
-        "Specialist agent that deobfuscates script-based malware and extracts "
-        "structured Indicators of Compromise (IOCs) using local Python execution."
+        "Specialist agent that deobfuscates ONE script-based malware sample per call "
+        "and extracts structured Indicators of Compromise (IOCs) using local Python execution."
     ),
     instruction=(
         "You are deobfuscator_agent, a malware deobfuscation specialist.\n"

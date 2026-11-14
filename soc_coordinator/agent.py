@@ -44,7 +44,10 @@ SPECIALIST_ENDPOINTS: tuple[SpecialistEndpoint, ...] = (
     SpecialistEndpoint(
         name="deobfuscator_agent",
         card_url="http://localhost:8001/.well-known/agent-card.json",
-        description="Deobfuscates suspicious scripts in a local Python subprocess.",
+        description=(
+            "Deobfuscates ONE suspicious script or payload per call in a local Python "
+            "subprocess. Invoke once per file."
+        ),
     ),
     SpecialistEndpoint(
         name="vt_intel_agent",
@@ -148,7 +151,8 @@ def _build_coordinator_instruction(subagents: list[Any]) -> str:
     return (
         f"{header}"
         "Use `list_samples` to discover files in `samples/` when investigating the workspace. "
-        "Orchestrate your A2A specialist tools (`deobfuscator_agent` for script deobfuscation, "
+        "Orchestrate your A2A specialist tools (`deobfuscator_agent` for script deobfuscation — "
+        "pass strictly ONE file/sample per call, making separate calls if there are multiple files — "
         "`secops_auditor_agent` for SKILL.md/WAF/advisory audits, and `vt_intel_agent` for "
         "VirusTotal enrichment of all extracted IPs, domains, and hashes), then synthesize a "
         "single executive incident report."

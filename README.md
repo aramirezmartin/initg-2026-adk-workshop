@@ -66,8 +66,6 @@ Installing the package registers cross-platform CLI commands in `[project.script
    soc-stop
    ```
 
-*(You can also run `make start`, `make web`, `make stop` if you have `make` installed.)*
-
 ### Option B — Run each specialist in its own terminal
 
 ```bash
